@@ -9,6 +9,7 @@ type AuthContextType = {
   signInWithGoogle(): Promise<void>;
   user: User | null;
   loggedIn: boolean;
+  signOut(): Promise<void>;
 }
 
 export const AuthProvider = ({children} : PropsWithChildren) => {
@@ -51,10 +52,14 @@ export const AuthProvider = ({children} : PropsWithChildren) => {
     }
   }
 
-    
+  async function signOut() {
+    await auth.signOut();
+    setUser(null);
+    setLoggedIn(false);
+  }
 
   return(
-    <AuthContext.Provider value={{signInWithGoogle, user, loggedIn}}>
+    <AuthContext.Provider value={{signInWithGoogle, user, loggedIn, signOut}}>
       {children}
     </AuthContext.Provider>
   )
