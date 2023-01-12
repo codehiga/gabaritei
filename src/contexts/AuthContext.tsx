@@ -1,7 +1,8 @@
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup } from "firebase/auth";
 import { PropsWithChildren, createContext, useEffect, useState } from "react";
 import { User } from "../interfaces/usuario";
 import { auth } from "../libs/firebase";
+import { LocalStorage } from "../services/local-storage";
 
 export const AuthContext = createContext({} as AuthContextType);
 
@@ -13,23 +14,25 @@ type AuthContextType = {
 }
 
 export const AuthProvider = ({children} : PropsWithChildren) => {
+  const local = new LocalStorage();
   const [ user, setUser ] = useState<User | null>(null);
-  const [ loggedIn, setLoggedIn ]= useState<boolean>(false);
+  const [ loggedIn ] = useState<boolean>(Boolean(local.resgata("usuario")));
 
   useEffect(() => {
-    auth.onAuthStateChanged(authData => {
+    onAuthStateChanged(auth, authData => {
       if (authData) {
         const { displayName, photoURL, uid, email } = authData;
-        setUser({
+        let userData = {
           id : uid,
           name: displayName,
           avatar: photoURL,
           email: email
-        });
-        setLoggedIn(true);
+        }
+        setUser(userData);
+        local.salva("usuario", userData);
       } else {
         setUser(null);
-        setLoggedIn(false);
+        local.deleta("usuario");
       }
     })
   }, [])
@@ -41,13 +44,14 @@ export const AuthProvider = ({children} : PropsWithChildren) => {
     if(credential) {
       const user = result.user;
       if(user) {
-        setUser({
+        let userData = {
           id: user.uid,
           name: user.displayName,
           avatar: user.photoURL,
           email: user.email
-        });
-        setLoggedIn(true);
+        }
+        setUser(userData);
+        local.salva("usuario", userData);
       }
     }
   }
@@ -55,7 +59,7 @@ export const AuthProvider = ({children} : PropsWithChildren) => {
   async function signOut() {
     await auth.signOut();
     setUser(null);
-    setLoggedIn(false);
+    local.deleta("usuario");
   }
 
   return(
