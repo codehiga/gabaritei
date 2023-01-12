@@ -1,9 +1,13 @@
-import { addDoc, collection, doc, getDoc, getDocs, updateDoc } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, updateDoc } from "firebase/firestore";
 import { Gabarito } from "../interfaces/gabarito";
 import { db } from "../libs/firebase";
 import { GabaritoRepository } from "../repositories/gabarito-repository";
 
 export class FirebaseGabaritoRepository implements GabaritoRepository {
+
+  async deletarGabarito(id: string, email: string): Promise<void> {
+      await deleteDoc(doc(db, "gabaritos", email, "gabaritos", id));
+  }
   
   async resgataGabaritos(email: string): Promise<Gabarito[]> {
     const response = await getDocs(collection(db, "gabaritos/" + email + "/gabaritos/"));
