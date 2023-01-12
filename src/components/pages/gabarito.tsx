@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import Spinner from "react-spinner-material";
 import { AuthContext } from "../../contexts/AuthContext";
 import { Gabarito } from "../../interfaces/gabarito";
 import { FirebaseGabaritoRepository } from "../../services/api";
@@ -14,6 +15,8 @@ export const GabaritoPage = () => {
   const { user } = useContext(AuthContext);
   const { id } = useParams();
   const [selectedOptions, setSelectedOptions] = useState([]);
+  const [ loading, setLoading ] = useState<boolean>(false); 
+
   let intervalId;
 
   function timeStart(started?: number) {
@@ -36,19 +39,21 @@ export const GabaritoPage = () => {
 
   async function handleStartTest() {
     await repository.atualizaGabarito(id, user.email, {
-      iniciado : true
+      iniciado : true,
+      timestampInicioProva : new Date().getTime(),
     })
     timeStart(new Date().getTime());
     setStartedTime(true);
     local.salva("prova-iniciada", {
       ...gabaritoData,
-      iniciadoEm: new Date().getTime(),
+      iniciadoEm: new Date(),
+      timestampInicioProva : new Date().getTime(),
       iniciado: true,
-      respostas: []
     })
   }
 
   async function handleFinish() {
+    setLoading(true);
     let testData = local.resgata("prova-iniciada");
     testData = {
       ...testData,
@@ -60,22 +65,21 @@ export const GabaritoPage = () => {
     clearInterval(intervalId);
     local.deleta("prova-iniciada");
     setSelectedOptions([])
-    window.location.reload();
+    getGabaritoData();
+    setLoading(false);
   }
 
   async function getGabaritoData() {
-    if(local.resgata("prova-iniciada")?.id == id) {
-      setGabaritoData(local.resgata("prova-iniciada"));
-      if(local.resgata("prova-iniciada").iniciado == true && local.resgata("prova-iniciada").finalizado == false) {
-        timeStart(local.resgata("prova-iniciada").iniciadoEm);
-        setStartedTime(true);
-      }
-      return;
-    }
+    setLoading(true)
     const data = await repository.resgataGabaritoPorId(id, user.email);
+    if(local.resgata("prova-iniciada").iniciado == true && local.resgata("prova-iniciada").finalizado == false) {
+      timeStart(local.resgata("prova-iniciada").timestampInicioProva);
+      setStartedTime(true);
+    }
     setGabaritoData(data);
     setSelectedOptions(data.respostas)
     local.salva("prova-iniciada", data)
+    setLoading(false)
   }
 
   const handleOptionChange = (questionNumber: number, option: string) => {
@@ -85,7 +89,7 @@ export const GabaritoPage = () => {
     if (existingOption) {
       setSelectedOptions(
         selectedOptions.map((selectedOption) =>
-          selectedOption.question === questionNumber
+          selectedOption.questao === questionNumber
             ? { questao: questionNumber, opcao: option }
             : selectedOption
         )
@@ -98,15 +102,17 @@ export const GabaritoPage = () => {
   useEffect(() => {
     local.atualizar("prova-iniciada", {
       respostas : selectedOptions
-    })
+    });
 }, [selectedOptions])
 
   useEffect(() => {
     getGabaritoData();
   }, [id])
 
-  if(!gabaritoData) {
-    return <h1>Carregando!</h1>
+  if(loading || !gabaritoData) {
+    return <div className="fixed w-full h-full flex justify-center items-center">
+      <Spinner size={120} />
+    </div>
   }
 
   return(
@@ -114,7 +120,7 @@ export const GabaritoPage = () => {
       <div className="w-full max-w-7xl mx-auto flex flex-col items-center py-4 px-4">
         <div className="fixed top-0 h-20 w-full max-w-7xl mb-4 flex items-center justify-between px-4 backdrop-blur-xl">
           <div>
-            <button className="uppercase px-4 py-2 bg-blue-500 rounded-md text-white"><a href="/">Voltar</a></button>
+            <a href="/"><button className="uppercase px-4 py-2 bg-blue-500 rounded-md text-white">Voltar</button></a>
           </div>
           <div>
             <h1>Candidato: {user?.name}</h1>
@@ -246,7 +252,7 @@ const AnswerSheet = ({handleOptionChange, selectedOptions, finalizado} : AnswerS
                       value={opt.option}
                       disabled={finalizado}
                     />
-                    <label className="ml-2" htmlFor={`question-${question.number}-${opt.option}`}>{opt.option}</label>
+                    <label className="ml-2" htmlFor={`question-${question.number}-${opt.option}`}>{isMarked(question.number, opt.option) ? <b>{opt.option}</b> : opt.option}</label>
                   </div>
                 )
               })}
