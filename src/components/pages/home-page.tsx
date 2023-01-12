@@ -102,7 +102,7 @@ export const HomePage = () => {
             <button className="uppercase px-4 py-2 bg-blue-500 rounded-md text-white" onClick={handleNewGabarito}>Novo gabarito!</button>
           </div>
           <hr className="my-4" />
-          <div className="grid grid-cols-3 gap-1">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
             {gabaritos.length > 0 ? gabaritos.map((gabarito, i) => (
               <div key={i} className="w-full border">
                 <div className="bg-white rounded-lg p-4">
