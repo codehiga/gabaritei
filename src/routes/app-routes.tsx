@@ -1,6 +1,6 @@
 import { PropsWithChildren, useContext } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { HomePage, Login } from "../components/pages";
+import { GabaritoPage, HomePage, Login } from "../components/pages";
 import { AuthContext } from "../contexts/AuthContext";
 
 const ProtectedRoute = ({ children } : PropsWithChildren) => {
@@ -32,6 +32,11 @@ export const AppRoutes = () => {
         <Route path="/" element={
           <ProtectedRoute>
             <HomePage />
+          </ProtectedRoute>
+        } />
+        <Route path="/gabarito/:id" element={
+          <ProtectedRoute>
+            <GabaritoPage />
           </ProtectedRoute>
         } />
       </Routes>
