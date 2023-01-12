@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import Spinner from "react-spinner-material";
 import { AuthContext } from "../../contexts/AuthContext";
 import { useLocation } from "../../hooks/useLocation";
 import { Gabarito } from "../../interfaces/gabarito";
@@ -9,6 +10,7 @@ export const HomePage = () => {
   const [ gabaritos, setGabaritos ] = useState<Gabarito[]>([]);
   const [ gabaritoName, setGabaritoName ] = useState<string>("");
   const [ modalNewGabarito, setModalNewGabarito ] = useState<boolean>(false);
+  const [ loading, setLoading ] = useState<boolean>(false); 
   const { signOut, user } = useContext(AuthContext);
   const { go } = useLocation();
 
@@ -16,10 +18,17 @@ export const HomePage = () => {
     await signOut();
     go("/login");
   }
+
+  async function handleDeleteGabarito(id: string) {
+    await repository.deletarGabarito(id, user.email);
+    await getGabaritos()
+  }
   
   async function getGabaritos() {
+    setLoading(true);
     const response = await repository.resgataGabaritos(user.email);
     setGabaritos(response);
+    setLoading(false);
   }
 
   async function handleNewGabarito() {
@@ -27,6 +36,7 @@ export const HomePage = () => {
   }
 
   async function handleCreateNewGabarito() {
+    if(!gabaritoName) return;
     let gabarito : Gabarito = {
       id: '',
       criadoEm : new Date(new Date().getTime()).toLocaleDateString(),
@@ -45,6 +55,12 @@ export const HomePage = () => {
   useEffect(() => {
     getGabaritos()
   }, [])
+
+  if(loading) {
+    return <div className="fixed w-full h-full flex justify-center items-center">
+      <Spinner size={120} />
+    </div>
+  }
   
   return(
     <div className="w-full">
@@ -63,6 +79,10 @@ export const HomePage = () => {
               <input value={gabaritoName} onChange={e => setGabaritoName(e.target.value)} className="p-2 w-full rounded-sm" type="text" />
             </label>
 
+            <div className="w-full flex justify-end absolute top-0 right-0">
+              <div onClick={() => setModalNewGabarito(false)} className="uppercase px-4 py-2 bg-red-500 rounded-md cursor-pointer text-white">Fechar</div>
+            </div>
+
             <div className="w-full flex justify-end absolute bottom-0 right-0">
               <button className="uppercase px-4 py-2 bg-blue-500 rounded-md text-white">Criar gabarito</button>
             </div>
@@ -77,30 +97,34 @@ export const HomePage = () => {
                 <button className="uppercase px-4 py-2 bg-red-500 rounded-md text-white" onClick={handleSignOut}>sair</button>
             </div>
           </div>
-          <table className="table-auto w-full">
+          <table className="table-auto w-full overflow-hidden">
             <thead>
               <tr className="bg-gray-200 text-gray-800">
                 <th className="px-4 py-2 uppercase">prova</th>
                 <th className="px-4 py-2 uppercase">data</th>
                 <th className="px-4 py-2 uppercase">tempo</th>
                 <th className="px-4 py-2 uppercase">status</th>
-                <th className="px-4 py-2 uppercase">entrar</th>
+                <th className="px-4 py-2 uppercase">ver</th>
+                <th className="px-4 py-2 uppercase">deletar</th>
               </tr>
             </thead>
             <tbody>
               {
-                gabaritos.map((gabarito, i) => (
+                gabaritos.length > 0 && gabaritos.map((gabarito, i) => (
                   <tr key={i} className="text-gray-700">
                     <td className="border px-4 py-2">{gabarito.prova}</td>
-                    <td className="border px-4 py-2">{new Date(gabarito?.criadoEm).toLocaleDateString()}</td>
+                    <td className="border px-4 py-2">{gabarito?.criadoEm}</td>
                     <td className="border px-4 py-2">{gabarito.tempo}</td>
                     <td className="border px-4 py-2">{gabarito.finalizado ? 'Finalizado' : 'Não iniciado'}</td>
-                    <td className="border px-4 py-2"><a href={`/gabarito/${gabarito.id}`}><button className="px-2 py-1 bg-blue-500 w-full rounded-md text-white">Entrar</button></a></td>
+                    <td className="border px-4 py-2"><a href={`/gabarito/${gabarito.id}`}><button className="px-2 py-1 bg-blue-500 w-full rounded-md text-white">Ver</button></a></td>
+                    <td className="border px-2 py-2"><button onClick={() => handleDeleteGabarito(gabarito.id)} className="px-2 py-1 bg-red-500 w-full rounded-md text-white">Deletar</button></td>
                   </tr>
                 ))
               }
             </tbody>
           </table>
+
+          <h1 className="my-4">Ainda não possui gabaritos :(</h1>
 
           <div className="w-full flex justify-end mt-4">
             <button className="uppercase px-4 py-2 bg-blue-500 rounded-md text-white" onClick={handleNewGabarito}>Novo gabarito!</button>
