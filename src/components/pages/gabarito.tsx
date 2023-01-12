@@ -74,6 +74,7 @@ export const GabaritoPage = () => {
     }
     const data = await repository.resgataGabaritoPorId(id, user.email);
     setGabaritoData(data);
+    setSelectedOptions(data.respostas)
     local.salva("prova-iniciada", data)
   }
 
@@ -142,7 +143,7 @@ export const GabaritoPage = () => {
                 }
               </div>
               :
-              <div className="w-full">
+              <div className="w-full flex flex-col gap-4">
                 <table className="table-auto w-full">
                   <thead>
                     <tr className="bg-gray-200 text-gray-800">
@@ -159,6 +160,8 @@ export const GabaritoPage = () => {
                     </tr>
                   </tbody>
                 </table>
+
+                <AnswerSheet finalizado={gabaritoData?.finalizado} selectedOptions={selectedOptions} handleOptionChange={handleOptionChange} />
               </div>
           }
         </div>
@@ -170,9 +173,10 @@ export const GabaritoPage = () => {
 type AnswerSheetProps = {
   handleOptionChange: (questionNumber: number, option: string) => void;
   selectedOptions : any[];
+  finalizado?: boolean;
 }
 
-const AnswerSheet = ({handleOptionChange, selectedOptions} : AnswerSheetProps) => {
+const AnswerSheet = ({handleOptionChange, selectedOptions, finalizado} : AnswerSheetProps) => {
   const [questions, setQuestions] = useState<{ number: number; opts: {option: string, marked: boolean}[] }[]>([]);
   
   useEffect(() => {
@@ -239,7 +243,8 @@ const AnswerSheet = ({handleOptionChange, selectedOptions} : AnswerSheetProps) =
                       className="form-radio" 
                       id={`question-${question.number}-${opt.option}`} 
                       name={`question-${question.number}`} 
-                      value={opt.option} 
+                      value={opt.option}
+                      disabled={finalizado}
                     />
                     <label className="ml-2" htmlFor={`question-${question.number}-${opt.option}`}>{opt.option}</label>
                   </div>
