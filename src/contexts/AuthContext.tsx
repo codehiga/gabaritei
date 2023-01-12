@@ -15,7 +15,7 @@ type AuthContextType = {
 
 export const AuthProvider = ({children} : PropsWithChildren) => {
   const local = new LocalStorage();
-  const [ user, setUser ] = useState<User | null>(null);
+  const [ user, setUser ] = useState<User | null>(local.resgata("usuario"));
   const [ loggedIn ] = useState<boolean>(Boolean(local.resgata("usuario")));
 
   useEffect(() => {
@@ -28,7 +28,6 @@ export const AuthProvider = ({children} : PropsWithChildren) => {
           avatar: photoURL,
           email: email
         }
-        setUser(userData);
         local.salva("usuario", userData);
       } else {
         setUser(null);
@@ -50,7 +49,6 @@ export const AuthProvider = ({children} : PropsWithChildren) => {
           avatar: user.photoURL,
           email: user.email
         }
-        setUser(userData);
         local.salva("usuario", userData);
       }
     }
