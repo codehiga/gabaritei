@@ -7,6 +7,14 @@ Para utilizar este software, você precisará ter Node.js e React instalado em s
 Clone este repositório para sua máquina e instale as dependências com o seguinte comando:
 ```npm install```
 
+Em seguida com as suas credenciais do Firebase insira as seguintes variáveis de ambiente:
+`VITE_APIKEY=`
+`VITE_AUTHDOMAIN=`
+`VITE_PROJECTID=`
+`VITE_STORAGEBUCKET=`
+`VITE_MESSAGINGSENDERID=`
+`VITE_APPID=`
+
 ### Uso
 Para iniciar o software, execute o seguinte comando:
-`npm start`
+`npm dev`
