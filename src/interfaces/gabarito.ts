@@ -7,5 +7,5 @@ export interface Gabarito {
   prova: string;
   tempo: number;
   respostas : Resposta[];
-  criadoEm: string;
+  criadoEm: any;
 }

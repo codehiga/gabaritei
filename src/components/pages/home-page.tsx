@@ -27,7 +27,8 @@ export const HomePage = () => {
   async function getGabaritos() {
     setLoading(true);
     const response = await repository.resgataGabaritos(user.email);
-    setGabaritos(response);
+    const sortedGabaritos = response.sort((a, b) => new Date(b.criadoEm).getTime() - new Date(a.criadoEm).getTime());
+    setGabaritos(sortedGabaritos);
     setLoading(false);
   }
 
@@ -39,7 +40,7 @@ export const HomePage = () => {
     if(!gabaritoName) return;
     let gabarito : Gabarito = {
       id: '',
-      criadoEm : new Date(new Date().getTime()).toLocaleDateString(),
+      criadoEm : new Date().getTime(),
       finalizado : false,
       iniciado: false,
       prova: gabaritoName,
@@ -76,11 +77,11 @@ export const HomePage = () => {
 
             <label>
               <p className="font-semibold">Prova:</p>
-              <input value={gabaritoName} onChange={e => setGabaritoName(e.target.value)} className="p-2 w-full rounded-sm" type="text" />
+              <input value={gabaritoName} onChange={e => setGabaritoName(e.target.value)} className="p-2 w-full rounded-sm border-2" type="text" />
             </label>
 
             <div className="w-full flex justify-end absolute top-0 right-0">
-              <div onClick={() => setModalNewGabarito(false)} className="uppercase px-4 py-2 bg-red-500 rounded-md cursor-pointer text-white">Fechar</div>
+              <div onClick={() => setModalNewGabarito(false)} className="uppercase px-4 py-2 bg-red-500 rounded-md cursor-pointer">✖</div>
             </div>
 
             <div className="w-full flex justify-end absolute bottom-0 right-0">
@@ -97,37 +98,36 @@ export const HomePage = () => {
                 <button className="uppercase px-4 py-2 bg-red-500 rounded-md text-white" onClick={handleSignOut}>sair</button>
             </div>
           </div>
-          <table className="table-auto w-full overflow-hidden">
-            <thead>
-              <tr className="bg-gray-200 text-gray-800">
-                <th className="px-4 py-2 uppercase">prova</th>
-                <th className="px-4 py-2 uppercase">data</th>
-                <th className="px-4 py-2 uppercase">tempo</th>
-                <th className="px-4 py-2 uppercase">status</th>
-                <th className="px-4 py-2 uppercase">ver</th>
-                <th className="px-4 py-2 uppercase">deletar</th>
-              </tr>
-            </thead>
-            <tbody>
-              {
-                gabaritos.length > 0 && gabaritos.map((gabarito, i) => (
-                  <tr key={i} className="text-gray-700">
-                    <td className="border px-4 py-2">{gabarito.prova}</td>
-                    <td className="border px-4 py-2">{gabarito?.criadoEm}</td>
-                    <td className="border px-4 py-2">{gabarito.tempo}</td>
-                    <td className="border px-4 py-2">{gabarito.finalizado ? 'Finalizado' : 'Não iniciado'}</td>
-                    <td className="border px-4 py-2"><a href={`/gabarito/${gabarito.id}`}><button className="px-2 py-1 bg-blue-500 w-full rounded-md text-white">Ver</button></a></td>
-                    <td className="border px-2 py-2"><button onClick={() => handleDeleteGabarito(gabarito.id)} className="px-2 py-1 bg-red-500 w-full rounded-md text-white">Deletar</button></td>
-                  </tr>
-                ))
-              }
-            </tbody>
-          </table>
-
-          <h1 className="my-4">Ainda não possui gabaritos :(</h1>
-
-          <div className="w-full flex justify-end mt-4">
+          <div className="w-full flex justify-start my-4">
             <button className="uppercase px-4 py-2 bg-blue-500 rounded-md text-white" onClick={handleNewGabarito}>Novo gabarito!</button>
+          </div>
+          <hr className="my-4" />
+          <div className="grid grid-cols-3 gap-1">
+            {gabaritos.length > 0 ? gabaritos.map((gabarito, i) => (
+              <div key={i} className="w-full border">
+                <div className="bg-white rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-lg font-medium">{gabarito.prova}</h4>
+                    <span className={`inline-block px-3 py-1 rounded-full text-${gabarito.finalizado ? 'green' : 'red'}-500`}>
+                      {gabarito.finalizado ? 'Finalizado' : 'Não iniciado'}
+                    </span>
+                  </div>
+                  <div className="mt-2">
+                    <div className="text-gray-700">Data: {new Date(gabarito?.criadoEm).toLocaleString()}</div>
+                    <div className="text-gray-700">Tempo: {gabarito.tempo}</div>
+                  </div>
+                  <div className="mt-4 flex justify-between">
+                    <a href={`/gabarito/${gabarito.id}`}>
+                      <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Ver</button>
+                    </a>
+                    <button onClick={() => handleDeleteGabarito(gabarito.id)} className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">Deletar</button>
+                  </div>
+                </div>
+              </div>
+            ))
+            :
+            <h1 className="my-4">Ainda não possui gabaritos :(</h1>
+          }
           </div>
         </div>
       </div>

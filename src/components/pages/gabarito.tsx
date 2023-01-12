@@ -46,7 +46,7 @@ export const GabaritoPage = () => {
     setStartedTime(true);
     local.salva("prova-iniciada", {
       ...gabaritoData,
-      iniciadoEm: new Date(),
+      iniciadoEm: new Date().getTime(),
       timestampInicioProva : new Date().getTime(),
       iniciado: true,
     })
