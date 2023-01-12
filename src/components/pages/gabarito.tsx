@@ -161,7 +161,7 @@ export const GabaritoPage = () => {
                   <tbody>
                     <tr className="text-gray-700">
                       <td className="border px-4 py-2">{gabaritoData?.prova}</td>
-                      <td className="border px-4 py-2">{gabaritoData?.criadoEm}</td>
+                      <td className="border px-4 py-2">{new Date(gabaritoData?.criadoEm).toLocaleString()}</td>
                       <td className="border px-4 py-2">{gabaritoData?.tempo}</td>
                     </tr>
                   </tbody>
