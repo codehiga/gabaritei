@@ -1,4 +1,4 @@
 import ReactDOM from 'react-dom/client'
-import { HomePage } from './components/pages/home-page'
+import { AppRoutes } from './routes/app-routes'
 
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(<HomePage />)
+ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(<AppRoutes />)
