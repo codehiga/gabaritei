@@ -23,7 +23,10 @@ export class FirebaseGabaritoRepository implements GabaritoRepository {
     return null;
   }
 
-  async salva(data: Gabarito): Promise<void> {
-    await addDoc(collection(db, "gabaritos"), data);
+  async salva(data: Gabarito, email: string): Promise<void> {
+    const doc = await addDoc(collection(db, "gabaritos/" + email + "/gabaritos/"), data);
+    await this.atualizaGabarito(doc.id, email, {
+      id : doc.id
+    });
   }
 }
