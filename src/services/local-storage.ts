@@ -14,4 +14,13 @@ export class LocalStorage {
   deleta(key: string) {
     this.localStorageRepository.removeItem(key);
   }
+
+  atualizar(key: string, value: any) {
+    let resgatado = this.resgata(key);
+    this.localStorageRepository.removeItem(key);
+    this.salva(key, {
+      ...resgatado,
+      ...value
+    });
+  }
 }

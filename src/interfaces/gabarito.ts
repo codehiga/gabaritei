@@ -1,7 +1,7 @@
 import { Resposta } from "./resposta";
 
 export interface Gabarito {
-  id: number;
+  id: string;
   iniciado: boolean;
   finalizado: boolean;
   prova: string;
