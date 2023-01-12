@@ -10,10 +10,10 @@ export const GabaritoPage = () => {
   const local = new LocalStorage();
   const [ gabaritoData, setGabaritoData ] = useState<Gabarito | null>(null);
   const [ startedTime, setStartedTime ] = useState<boolean>(false);
-  const [ time, setTime ] = useState(local.resgata("prova-iniciada")?.tempo ?? "00:00:00");
+  const [ time, setTime ] = useState("00:00:00");
   const { user } = useContext(AuthContext);
   const { id } = useParams();
-  const [selectedOptions, setSelectedOptions] = useState(local.resgata("prova-iniciada")?.respostas ?? []);
+  const [selectedOptions, setSelectedOptions] = useState([]);
   let intervalId;
 
   function timeStart(started?: number) {
@@ -58,14 +58,12 @@ export const GabaritoPage = () => {
     await repository.atualizaGabarito(id, user.email, testData)
     setStartedTime(false);
     clearInterval(intervalId);
+    local.deleta("prova-iniciada");
+    setSelectedOptions([])
+    window.location.reload();
   }
 
   async function getGabaritoData() {
-    if(gabaritoData) {
-      console.log("!!!")
-      return local.salva("prova-iniciada", gabaritoData)
-    }
-
     if(local.resgata("prova-iniciada")?.id == id) {
       setGabaritoData(local.resgata("prova-iniciada"));
       if(local.resgata("prova-iniciada").iniciado == true && local.resgata("prova-iniciada").finalizado == false) {
@@ -156,7 +154,7 @@ export const GabaritoPage = () => {
                   <tbody>
                     <tr className="text-gray-700">
                       <td className="border px-4 py-2">{gabaritoData?.prova}</td>
-                      <td className="border px-4 py-2">{new Date(gabaritoData?.criadoEm).toLocaleDateString()}</td>
+                      <td className="border px-4 py-2">{gabaritoData?.criadoEm}</td>
                       <td className="border px-4 py-2">{gabaritoData?.tempo}</td>
                     </tr>
                   </tbody>
