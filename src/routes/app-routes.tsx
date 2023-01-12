@@ -1,12 +1,41 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom"
-import { HomePage } from "../components/pages"
+import { PropsWithChildren, useContext } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { HomePage, Login } from "../components/pages";
+import { AuthContext } from "../contexts/AuthContext";
+
+const ProtectedRoute = ({ children } : PropsWithChildren) => {
+  const { loggedIn } = useContext(AuthContext);
+  if (!loggedIn) {
+    return <Navigate to="/login" replace />;
+  }
+  return children as JSX.Element;
+};
+
+const LogedInRoutes = ({ children } : PropsWithChildren) => {
+  const { loggedIn } = useContext(AuthContext);
+  console.log(loggedIn)
+  if (loggedIn) {
+    return <Navigate to="/" replace />;
+  }
+  return children as JSX.Element;
+};
 
 export const AppRoutes = () => {
   return(
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={
+          <LogedInRoutes>
+            <Login />
+          </LogedInRoutes>
+        } />
+        <Route path="/" element={
+          <ProtectedRoute>
+            <HomePage />
+          </ProtectedRoute>
+        } />
       </Routes>
     </BrowserRouter>
   )
 }
+
