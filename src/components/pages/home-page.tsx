@@ -50,7 +50,10 @@ export const HomePage = () => {
     <div className="w-full">
       <div className="w-full max-w-7xl mx-auto flex flex-col py-4 px-4 gap-4">
         <div className={`${modalNewGabarito ? 'right-0' : '-right-full'} w-96 backdrop-blur-3xl fixed bottom-0 h-full transition-all p-4 shadow-lg`}>
-          <div className="w-full h-full flex flex-col gap-2 relative">
+          <form onSubmit={e => {
+            e.preventDefault()
+            handleCreateNewGabarito()
+          }} className="w-full h-full flex flex-col gap-2 relative">
             <div>
               <h2 className="text-3xl font-semibold">Novo gabarito</h2>
             </div>
@@ -61,9 +64,9 @@ export const HomePage = () => {
             </label>
 
             <div className="w-full flex justify-end absolute bottom-0 right-0">
-              <button className="uppercase px-4 py-2 bg-blue-500 rounded-md text-white" onClick={handleCreateNewGabarito}>Criar gabarito</button>
+              <button className="uppercase px-4 py-2 bg-blue-500 rounded-md text-white">Criar gabarito</button>
             </div>
-          </div>
+          </form>
         </div>
         <div>
           <div className="flex items-center">
